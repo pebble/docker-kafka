@@ -11,15 +11,18 @@ IP=$(grep ${HOSTNAME} /etc/hosts | awk '{print $1}')
 # string with multiple ZooKeeper hosts
 [ -z "$ZOOKEEPER_CONNECTION_STRING" ] && ZOOKEEPER_CONNECTION_STRING="${ZOOKEEPER_IP}:${ZOOKEEPER_PORT:-2181}"
 
-cat /kafka/config/server.properties.template | sed \
-  -e "s|{{ZOOKEEPER_CONNECTION_STRING}}|${ZOOKEEPER_CONNECTION_STRING}|g" \
-  -e "s|{{ZOOKEEPER_CHROOT}}|${ZOOKEEPER_CHROOT:-}|g" \
-  -e "s|{{KAFKA_BROKER_ID}}|${KAFKA_BROKER_ID:-0}|g" \
-  -e "s|{{KAFKA_ADVERTISED_HOST_NAME}}|${KAFKA_ADVERTISED_HOST_NAME:-$IP}|g" \
-  -e "s|{{KAFKA_PORT}}|${KAFKA_PORT:-9092}|g" \
-  -e "s|{{KAFKA_ADVERTISED_PORT}}|${KAFKA_ADVERTISED_PORT:-9092}|g" \
-  -e "s|{{KAFKA_DELETE_TOPIC_ENABLE}}|${KAFKA_DELETE_TOPIC_ENABLE:-false}|g" \
-   > /kafka/config/server.properties
+if [ -z "$KAFKA_SERVER_PROPERTIES" ]; then
+    KAFKA_SERVER_PROPERTIES=/kafka/config/server.properties
+    cat /kafka/config/server.properties.template | sed \
+      -e "s|{{ZOOKEEPER_CONNECTION_STRING}}|${ZOOKEEPER_CONNECTION_STRING}|g" \
+      -e "s|{{ZOOKEEPER_CHROOT}}|${ZOOKEEPER_CHROOT:-}|g" \
+      -e "s|{{KAFKA_BROKER_ID}}|${KAFKA_BROKER_ID:-0}|g" \
+      -e "s|{{KAFKA_ADVERTISED_HOST_NAME}}|${KAFKA_ADVERTISED_HOST_NAME:-$IP}|g" \
+      -e "s|{{KAFKA_PORT}}|${KAFKA_PORT:-9092}|g" \
+      -e "s|{{KAFKA_ADVERTISED_PORT}}|${KAFKA_ADVERTISED_PORT:-9092}|g" \
+      -e "s|{{KAFKA_DELETE_TOPIC_ENABLE}}|${KAFKA_DELETE_TOPIC_ENABLE:-false}|g" \
+       > /kafka/config/server.properties
+fi
 
 # Kafka's built-in start scripts set the first three system properties here, but
 # we add two more to make remote JMX easier/possible to access in a Docker
@@ -44,4 +47,4 @@ if [ -z $KAFKA_JMX_OPTS ]; then
 fi
 
 echo "Starting kafka"
-exec /kafka/bin/kafka-server-start.sh /kafka/config/server.properties
+exec /kafka/bin/kafka-server-start.sh $KAFKA_SERVER_PROPERTIES
