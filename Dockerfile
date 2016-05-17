@@ -13,7 +13,7 @@ MAINTAINER Ches Martin <ches@whiskeyandgrits.net>
 ENV KAFKA_VERSION=0.9.0.1 KAFKA_SCALA_VERSION=2.11 JMX_PORT=7203
 ENV KAFKA_RELEASE_ARCHIVE kafka_${KAFKA_SCALA_VERSION}-${KAFKA_VERSION}.tgz
 
-RUN mkdir /kafka /data /logs
+RUN mkdir /kafka /data
 
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -40,14 +40,14 @@ ADD start.sh /start.sh
 # Set up a user to run Kafka
 RUN groupadd kafka && \
   useradd -d /kafka -g kafka -s /bin/false kafka && \
-  chown -R kafka:kafka /kafka /data /logs
+  chown -R kafka:kafka /kafka /data
 USER kafka
 ENV PATH /kafka/bin:$PATH
 WORKDIR /kafka
 
 # broker, jmx
 EXPOSE 9092 ${JMX_PORT}
-VOLUME [ "/data", "/logs" ]
+VOLUME [ "/data" ]
 
 CMD ["/start.sh"]
 
