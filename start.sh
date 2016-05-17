@@ -50,5 +50,18 @@ if [ -z $KAFKA_JMX_OPTS ]; then
     export KAFKA_JMX_OPTS
 fi
 
+if [ -n $USER_ID ] && [ -n $GROUP_ID ]; then
+  OLDUID=`id -u`
+  usermod -u $USER_ID kafka
+  find / -user $OLDUID -exec chown -h $USER_ID {} \;
+fi
+
+if [ -n $GROUP_ID ]; then
+  OLDGID=`id -g`
+  groupmod -g $GROUP_ID kafka
+  find / -group $OLDGID -exec chgrp -h $GROUP_ID {} \;
+  usermod -g $GROUP_ID kafka
+fi
+
 echo "Starting kafka"
 exec /kafka/bin/kafka-server-start.sh /kafka/config/server.properties
