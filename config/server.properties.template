@@ -58,6 +58,11 @@ num.partitions={{KAFKA_NUM_PARTITIONS}}
 # The minimum age of a log file to be eligible for deletion
 log.retention.hours={{KAFKA_LOG_RETENTION_HOURS}}
 
+# The maximum time between fsync calls on the log
+log.flush.interval.ms={{KAFKA_LOG_FLUSH_INTERVAL_MS}}
+# The number of messages written to a log partition before we force an fsync on the log
+log.flush.interval.messages={{KAFKA_LOG_FLUSH_INTERVAL_MESSAGES}}
+
 ############################# Zookeeper #############################
 
 # Zk connection string (see zk docs for details).
