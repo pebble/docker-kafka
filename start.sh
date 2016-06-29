@@ -11,25 +11,6 @@ IP=$(grep ${HOSTNAME} /etc/hosts | awk '{print $1}')
 # string with multiple ZooKeeper hosts
 [ -z "$ZOOKEEPER_CONNECTION_STRING" ] && ZOOKEEPER_CONNECTION_STRING="${ZOOKEEPER_IP}:${ZOOKEEPER_PORT:-2181}"
 
-cat /kafka/config/server.properties.template | sed \
-  -e "s|{{KAFKA_BROKER_ID}}|${KAFKA_BROKER_ID:--1}|g" \
-  -e "s|{{KAFKA_CREATE_TOPICS_ENABLE}}|${KAFKA_CREATE_TOPICS_ENABLE:-true}|g" \
-  -e "s|{{KAFKA_REPLICATION_FACTOR}}|${KAFKA_REPLICATION_FACTOR:-1}|g" \
-  -e "s|{{KAFKA_ADVERTISED_HOST_NAME}}|${KAFKA_ADVERTISED_HOST_NAME:-$IP}|g" \
-  -e "s|{{KAFKA_DELETE_TOPIC_ENABLE}}|${KAFKA_DELETE_TOPIC_ENABLE:-false}|g" \
-  -e "s|{{KAFKA_PORT}}|${KAFKA_PORT:-9092}|g" \
-  -e "s|{{KAFKA_ADVERTISED_PORT}}|${KAFKA_ADVERTISED_PORT:-9092}|g" \
-  -e "s|{{KAFKA_LOG_DIR}}|${KAFKA_LOG_DIR:-/data}|g" \
-  -e "s|{{KAFKA_NUM_PARTITIONS}}|${KAFKA_NUM_PARTITIONS:-1}|g" \
-  -e "s|{{KAFKA_LOG_RETENTION_HOURS}}|${KAFKA_LOG_RETENTION_HOURS:-168}|g" \
-  -e "s|{{KAFKA_LOG_FLUSH_INTERVAL_MS}}|${KAFKA_LOG_FLUSH_INTERVAL_MS:-3000}|g" \
-  -e "s|{{KAFKA_LOG_FLUSH_INTERVAL_MESSAGES}}|${KAFKA_LOG_FLUSH_INTERVAL_MESSAGES:-10000}|g" \
-  -e "s|{{ZOOKEEPER_CONNECTION_STRING}}|${ZOOKEEPER_CONNECTION_STRING}|g" \
-  -e "s|{{ZOOKEEPER_CHROOT}}|${ZOOKEEPER_CHROOT:-/kafka}|g" \
-  -e "s|{{ZOOKEEPER_CONNECTION_TIMEOUT_MS}}|${ZOOKEEPER_CONNECTION_TIMEOUT_MS:-10000}|g" \
-  -e "s|{{ZOOKEEPER_SESSION_TIMEOUT_MS}}|${ZOOKEEPER_SESSION_TIMEOUT_MS:-10000}|g" \
-   > /kafka/config/server.properties
-
 # Kafka's built-in start scripts set the first three system properties here, but
 # we add two more to make remote JMX easier/possible to access in a Docker
 # environment:
@@ -55,5 +36,4 @@ fi
 find /kafka -exec chown kafka:kafka {} \;
 find /data -exec chown kafka:kafka {} \;
 
-echo "Starting kafka"
-exec /kafka/bin/kafka-server-start.sh /kafka/config/server.properties
+/start.py
