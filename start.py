@@ -37,11 +37,11 @@ START_COMMAND = '/kafka/bin/kafka-server-start.sh'
 logger = logging.getLogger('kafka')
 
 
-def main(loops=-1, loop_interval=60, restart_time=30):
+def main(loops=-1, loop_interval=60, restart_interval=30):
     """
     :param loops: Number of loops. (set <0 for infinite)
     :param loop_interval: Time to sleep per loop (seconds).
-    :param restart_time: Time to sleep after a restart (seconds).
+    :param restart_interval: Time to sleep after a restart (seconds).
     :return: Return code for process.
     """
     exhibitor = os.environ.get('EXHIBITOR_BASE')
@@ -79,7 +79,7 @@ def main(loops=-1, loop_interval=60, restart_time=30):
                     kafka_pid = start_kafka(base_properties, cur_zk)
                     zk_conn = cur_zk
 
-                    time.sleep(restart_time)
+                    time.sleep(restart_interval)
             finally:
                 zk.stop()
 
@@ -129,5 +129,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG)
 
-    return_code = main()
+    loop_time = os.environ.get('EXHIBITOR_LOOP_TIME', 60)
+    restart_time = os.environ.get('EXHIBITOR_RESTART_TIME', 30)
+
+    return_code = main(loop_interval=loop_time, restart_interval=restart_time)
     sys.exit(return_code)

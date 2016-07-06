@@ -103,7 +103,7 @@ class TestStart(unittest.TestCase):
         mock_kafka_start.return_value = mock_popen
         mock_popen.returncode = None
 
-        main_return = main(loops=1, loop_interval=0.001, restart_time=0.001)
+        main_return = main(loops=1, loop_interval=0.001, restart_interval=0.001)
 
         self.assertEqual(0, main_return)
         mock_kazoo.assert_called_with(hosts=ANY)
